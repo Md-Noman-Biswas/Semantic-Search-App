@@ -28,6 +28,14 @@
   @apply transition-colors duration-300;
 }
 
+.dark .text-muted-foreground {
+  @apply text-slate-300;
+}
+
+.dark .border-border {
+  @apply border-slate-800;
+}
+
 #root {
   min-height: 100vh;
 }

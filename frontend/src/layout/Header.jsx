@@ -28,7 +28,7 @@ const Header = ({ onMenuClick }) => {
   }, [])
 
   return (
-    <header className="sticky top-0 z-50 border-b border-border/70 bg-white/90 shadow-sm backdrop-blur-lg dark:bg-slate-950/90">
+    <header className="sticky top-0 z-50 border-b border-border/70 bg-white/90 text-slate-900 shadow-sm backdrop-blur-lg dark:bg-slate-950/90 dark:text-slate-100">
       <div className="mx-auto flex h-16 w-full max-w-[1400px] items-center justify-between px-4 md:px-6">
         <div className="flex items-center gap-3">
           {user && (
@@ -37,7 +37,7 @@ const Header = ({ onMenuClick }) => {
             </Button>
           )}
 
-          <Link to="/" className="group flex items-center gap-2">
+          <Link to="/" className="group flex items-center gap-2 text-inherit">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-emerald-500 text-xs font-bold text-white shadow-sm transition-transform group-hover:scale-105">
               SS
             </div>
