@@ -38,11 +38,11 @@ const HomePage = () => {
         return (
           <Card key={feature.title} className="border-border/80 shadow-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Icon className="h-4 w-4 text-indigo-500" /> {feature.title}
+              <CardTitle className="flex items-center gap-2 text-base text-slate-900 dark:text-slate-100">
+                <Icon className="h-4 w-4 text-indigo-500 dark:text-indigo-400" /> {feature.title}
               </CardTitle>
             </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">{feature.text}</CardContent>
+            <CardContent className="text-sm text-slate-700 dark:text-slate-200">{feature.text}</CardContent>
           </Card>
         )
       })}
