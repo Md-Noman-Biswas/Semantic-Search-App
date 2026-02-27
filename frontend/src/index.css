@@ -10,12 +10,30 @@
   color-scheme: dark;
 }
 
+@layer base {
+  body {
+    @apply bg-background font-sans text-foreground antialiased dark:bg-slate-950 dark:text-slate-100;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
+}
+
 * {
   @apply transition-colors duration-300;
 }
 
-body {
-  @apply bg-background text-foreground antialiased dark:bg-slate-950 dark:text-slate-100;
+.dark .text-muted-foreground {
+  @apply text-slate-200;
+}
+
+.dark .border-border {
+  @apply border-slate-800;
 }
 
 #root {

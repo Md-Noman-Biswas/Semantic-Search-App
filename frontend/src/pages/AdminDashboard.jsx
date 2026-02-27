@@ -92,7 +92,7 @@ const AdminDashboard = () => {
                   <th className="px-4 py-3">Actions</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-slate-700 dark:text-slate-100">
                 {loading ? (
                   <tr>
                     <td colSpan={5} className="px-4 py-6">
@@ -105,9 +105,9 @@ const AdminDashboard = () => {
                   documents.map((doc) => (
                     <tr key={doc.id} className="border-t border-border hover:bg-slate-50/70 dark:hover:bg-slate-900/60">
                       <td className="px-4 py-3 font-medium">{doc.title}</td>
-                      <td className="px-4 py-3">{doc.description}</td>
-                      <td className="px-4 py-3">{doc.summary}</td>
-                      <td className="px-4 py-3">#{doc.created_by}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-200">{doc.description}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-200">{doc.summary}</td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-200">#{doc.created_by}</td>
                       <td className="px-4 py-3">
                         <Button variant="outline" onClick={() => setEditingId(doc.id)}>Edit</Button>
                       </td>

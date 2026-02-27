@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import Footer from './Footer'
@@ -11,26 +11,32 @@ const Layout = ({ children }) => {
   const location = useLocation()
   const [open, setOpen] = useState(false)
 
-  return (
-    <div className="min-h-screen transition-colors duration-300">
-      <Header onMenuClick={() => setOpen((v) => !v)} />
-      {user && <Sidebar open={open} onClose={() => setOpen(false)} />}
+  const hasDashboardShell = useMemo(() => {
+    if (!user) return false
+    return ['/dashboard', '/users', '/profile', '/settings'].some((path) => location.pathname.startsWith(path))
+  }, [location.pathname, user])
 
-      <main className={`mx-auto w-full max-w-7xl px-4 py-6 md:px-6 ${user ? 'md:pl-[18.5rem]' : ''}`}>
+  return (
+    <div className="flex min-h-screen flex-col bg-slate-50 text-foreground transition-colors duration-300 dark:bg-slate-950">
+      <Header onMenuClick={() => setOpen((value) => !value)} />
+      {hasDashboardShell && <Sidebar open={open} onClose={() => setOpen(false)} />}
+
+      <main className={`mx-auto flex w-full flex-1 px-4 pb-10 pt-6 md:px-6 ${hasDashboardShell ? 'max-w-[1400px] md:pl-72' : 'max-w-7xl'}`}>
         <AnimatePresence mode="wait">
           <motion.div
             key={location.pathname}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="w-full"
           >
             {children}
           </motion.div>
         </AnimatePresence>
       </main>
 
-      <Footer />
+      <Footer withSidebarOffset={hasDashboardShell} />
     </div>
   )
 }

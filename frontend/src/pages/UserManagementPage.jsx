@@ -59,7 +59,7 @@ const UserManagementPage = () => {
             <Input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
             <Input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
             <Input type="password" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-            <select className="rounded-md border border-border bg-white px-3 py-2 text-sm dark:bg-slate-900" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+            <select className="rounded-md border border-border bg-white px-3 py-2 text-sm text-foreground dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>
@@ -89,7 +89,7 @@ const UserManagementPage = () => {
                     <td className="px-4 py-3">{user.email}</td>
                     <td className="px-4 py-3">
                       <select
-                        className="rounded-md border border-border bg-white px-2 py-1 dark:bg-slate-900"
+                        className="rounded-md border border-border bg-white px-2 py-1 text-foreground dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
                         value={user.role}
                         onChange={(e) => changeRole(user.id, e.target.value)}
                       >
