@@ -12,12 +12,34 @@ from app.schemas.document import DocumentCreate, DocumentOut, DocumentUpdate
 router = APIRouter(prefix="/api/documents", tags=["documents"])
 
 
+def try_generate_embedding(summary: str) -> list[float] | None:
+    try:
+        return generate_summary_embedding(summary)
+    except EmbeddingError:
+        return None
+
+
 @router.get("/", response_model=list[DocumentOut])
 def list_documents(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     query = db.query(Document)
     if current_user.role != "admin":
         query = query.filter(Document.created_by == current_user.id)
-    return query.order_by(Document.created_at.desc()).all()
+    documents = query.order_by(Document.created_at.desc()).all()
+
+    updated = False
+    for doc in documents:
+        if doc.summary and not doc.summary_embedding:
+            embedding = try_generate_embedding(doc.summary)
+            if embedding is not None:
+                doc.summary_embedding = embedding
+                updated = True
+
+    if updated:
+        db.commit()
+        for doc in documents:
+            db.refresh(doc)
+
+    return documents
 
 
 @router.post("/", response_model=DocumentOut, status_code=201)
@@ -26,10 +48,7 @@ def create_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    try:
-        summary_embedding = generate_summary_embedding(payload.summary)
-    except EmbeddingError as exc:
-        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    summary_embedding = try_generate_embedding(payload.summary)
 
     doc = Document(**payload.model_dump(), created_by=current_user.id, summary_embedding=summary_embedding)
     db.add(doc)
@@ -55,10 +74,9 @@ def update_document(
     updates = payload.model_dump(exclude_unset=True)
 
     if "summary" in updates:
-        try:
-            doc.summary_embedding = generate_summary_embedding(updates["summary"])
-        except EmbeddingError as exc:
-            raise HTTPException(status_code=502, detail=str(exc)) from exc
+        doc.summary_embedding = try_generate_embedding(updates["summary"])
+    elif not doc.summary_embedding and doc.summary:
+        doc.summary_embedding = try_generate_embedding(doc.summary)
 
     for field, value in updates.items():
         setattr(doc, field, value)
