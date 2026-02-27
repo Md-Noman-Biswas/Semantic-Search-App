@@ -20,7 +20,7 @@ const HomePage = () => (
           <p className="mt-4 text-sm text-indigo-100/90 md:text-base">Organize knowledge, collaborate securely, and accelerate document workflows with a clean and responsive control center.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/dashboard"><Button className="group bg-white text-slate-900 hover:bg-slate-100">Open Dashboard <ArrowRight className="ml-2 h-4 w-4 transition group-hover:translate-x-0.5" /></Button></Link>
-            <Link to="/login"><Button variant="outline" className="border-white/60 bg-transparent text-white hover:bg-white/10">Sign In</Button></Link>
+            <Link to="/login"><Button variant="outline" className="border-white/70 !bg-transparent text-white hover:!bg-white/10">Sign In</Button></Link>
           </div>
         </motion.div>
       </CardContent>
