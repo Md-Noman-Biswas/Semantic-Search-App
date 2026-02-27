@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import DocumentForm from '../components/DocumentForm'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Spinner } from '../components/ui/spinner'
+import { useToast } from '../context/ToastContext'
 import api from '../api/client'
 
 const UserDashboard = () => {
@@ -10,12 +12,16 @@ const UserDashboard = () => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const { showToast } = useToast()
 
   const loadDocuments = async () => {
     setLoading(true)
-    const { data } = await api.get('/api/documents')
-    setDocuments(data)
-    setLoading(false)
+    try {
+      const { data } = await api.get('/api/documents')
+      setDocuments(data)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -29,21 +35,30 @@ const UserDashboard = () => {
       if (editingId) {
         await api.put(`/api/documents/${editingId}`, payload)
         setEditingId(null)
+        showToast('Document updated successfully')
       } else {
         await api.post('/api/documents', payload)
+        showToast('Document created successfully')
       }
       await loadDocuments()
     } catch {
       setError('Unable to save document. Please try again.')
+      showToast('Failed to save document', 'error')
     } finally {
       setSaving(false)
     }
   }
 
   const deleteDocument = async (id) => {
-    await api.delete(`/api/documents/${id}`)
-    if (editingId === id) setEditingId(null)
-    await loadDocuments()
+    if (!window.confirm('Are you sure you want to delete this document?')) return
+    try {
+      await api.delete(`/api/documents/${id}`)
+      if (editingId === id) setEditingId(null)
+      showToast('Document deleted successfully')
+      await loadDocuments()
+    } catch {
+      showToast('Failed to delete document', 'error')
+    }
   }
 
   const selected = documents.find((doc) => doc.id === editingId)
@@ -61,19 +76,21 @@ const UserDashboard = () => {
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading documents...</p>
+          <div className="col-span-full flex items-center justify-center gap-2 text-muted-foreground"><Spinner /> Loading documents...</div>
         ) : documents.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No documents yet. Create your first one.</p>
+          <Card className="col-span-full border-dashed">
+            <CardContent className="p-8 text-center text-sm text-muted-foreground">No documents yet. Create your first one to get started.</CardContent>
+          </Card>
         ) : (
           documents.map((doc) => (
-            <Card key={doc.id} className="animate-fade-in">
+            <Card key={doc.id} className="animate-fade-in transition hover:-translate-y-1 hover:shadow-md">
               <CardHeader>
                 <CardTitle>{doc.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
                 <p className="text-sm"><span className="font-medium">Description:</span> {doc.description}</p>
                 <p className="text-sm"><span className="font-medium">Summary:</span> {doc.summary}</p>
-                <div className="flex gap-2 pt-2">
+                <div className="flex flex-wrap gap-2 pt-2">
                   <Button variant="outline" onClick={() => setEditingId(doc.id)}>Edit</Button>
                   <Button variant="destructive" onClick={() => deleteDocument(doc.id)}>Delete</Button>
                 </div>

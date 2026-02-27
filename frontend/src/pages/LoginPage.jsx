@@ -28,8 +28,8 @@ const LoginPage = () => {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-slate-100 p-4">
-      <Card className="w-full max-w-md animate-fade-in">
+    <div className="mx-auto flex min-h-[60vh] max-w-md items-center justify-center">
+      <Card className="w-full animate-fade-in">
         <CardHeader>
           <CardTitle className="text-2xl">Welcome back</CardTitle>
           <p className="text-sm text-muted-foreground">Sign in to your workspace</p>
@@ -38,7 +38,7 @@ const LoginPage = () => {
           <form onSubmit={handleSubmit} className="grid gap-4">
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" required />
             <Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" required />
-            {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-600">{error}</p>}
+            {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-200">{error}</p>}
             <Button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Login'}</Button>
           </form>
         </CardContent>

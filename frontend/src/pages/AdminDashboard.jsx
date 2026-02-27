@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import DocumentForm from '../components/DocumentForm'
 import { Button } from '../components/ui/button'
 import { Card, CardContent } from '../components/ui/card'
+import { Spinner } from '../components/ui/spinner'
+import { useToast } from '../context/ToastContext'
 import api from '../api/client'
 
 const StatCard = ({ label, value }) => (
-  <Card>
+  <Card className="transition hover:-translate-y-0.5">
     <CardContent className="p-4">
       <p className="text-sm text-muted-foreground">{label}</p>
       <p className="text-2xl font-semibold">{value}</p>
@@ -19,12 +21,16 @@ const AdminDashboard = () => {
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(true)
+  const { showToast } = useToast()
 
   const loadDocuments = async () => {
     setLoading(true)
-    const { data } = await api.get('/api/documents')
-    setDocuments(data)
-    setLoading(false)
+    try {
+      const { data } = await api.get('/api/documents')
+      setDocuments(data)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -38,12 +44,15 @@ const AdminDashboard = () => {
       if (editingId) {
         await api.put(`/api/documents/${editingId}`, payload)
         setEditingId(null)
+        showToast('Document updated successfully')
       } else {
         await api.post('/api/documents', payload)
+        showToast('Document created successfully')
       }
       await loadDocuments()
     } catch {
       setError('Unable to save document. Please try again.')
+      showToast('Failed to save document', 'error')
     } finally {
       setSaving(false)
     }
@@ -74,7 +83,7 @@ const AdminDashboard = () => {
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-slate-600">
+              <thead className="bg-slate-50 text-left text-slate-600 dark:bg-slate-900 dark:text-slate-300">
                 <tr>
                   <th className="px-4 py-3">Title</th>
                   <th className="px-4 py-3">Description</th>
@@ -85,12 +94,16 @@ const AdminDashboard = () => {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">Loading documents...</td></tr>
+                  <tr>
+                    <td colSpan={5} className="px-4 py-6">
+                      <div className="flex items-center justify-center gap-2 text-muted-foreground"><Spinner /> Loading documents...</div>
+                    </td>
+                  </tr>
                 ) : documents.length === 0 ? (
-                  <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">No documents found.</td></tr>
+                  <tr><td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">No documents found.</td></tr>
                 ) : (
                   documents.map((doc) => (
-                    <tr key={doc.id} className="border-t border-border hover:bg-slate-50/70">
+                    <tr key={doc.id} className="border-t border-border hover:bg-slate-50/70 dark:hover:bg-slate-900/60">
                       <td className="px-4 py-3 font-medium">{doc.title}</td>
                       <td className="px-4 py-3">{doc.description}</td>
                       <td className="px-4 py-3">{doc.summary}</td>

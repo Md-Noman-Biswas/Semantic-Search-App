@@ -3,6 +3,8 @@ import api from '../api/client'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
+import { Spinner } from '../components/ui/spinner'
+import { useToast } from '../context/ToastContext'
 
 const emptyForm = { name: '', email: '', password: '', role: 'user' }
 
@@ -10,12 +12,16 @@ const UserManagementPage = () => {
   const [users, setUsers] = useState([])
   const [form, setForm] = useState(emptyForm)
   const [loading, setLoading] = useState(true)
+  const { showToast } = useToast()
 
   const loadUsers = async () => {
     setLoading(true)
-    const { data } = await api.get('/api/users')
-    setUsers(data)
-    setLoading(false)
+    try {
+      const { data } = await api.get('/api/users')
+      setUsers(data)
+    } finally {
+      setLoading(false)
+    }
   }
 
   useEffect(() => {
@@ -24,14 +30,24 @@ const UserManagementPage = () => {
 
   const createUser = async (event) => {
     event.preventDefault()
-    await api.post('/api/users', form)
-    setForm(emptyForm)
-    await loadUsers()
+    try {
+      await api.post('/api/users', form)
+      showToast('User created successfully')
+      setForm(emptyForm)
+      await loadUsers()
+    } catch {
+      showToast('Failed to create user', 'error')
+    }
   }
 
   const changeRole = async (userId, role) => {
-    await api.put(`/api/users/${userId}`, { role })
-    await loadUsers()
+    try {
+      await api.put(`/api/users/${userId}`, { role })
+      showToast('Role updated')
+      await loadUsers()
+    } catch {
+      showToast('Failed to update role', 'error')
+    }
   }
 
   return (
@@ -43,7 +59,7 @@ const UserManagementPage = () => {
             <Input placeholder="Name" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} required />
             <Input type="email" placeholder="Email" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} required />
             <Input type="password" placeholder="Password" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} required />
-            <select className="rounded-md border border-border bg-white px-3 py-2 text-sm" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
+            <select className="rounded-md border border-border bg-white px-3 py-2 text-sm dark:bg-slate-900" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })}>
               <option value="user">User</option>
               <option value="admin">Admin</option>
             </select>
@@ -57,7 +73,7 @@ const UserManagementPage = () => {
         <CardContent>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="bg-slate-50 text-left text-slate-600">
+              <thead className="bg-slate-50 text-left text-slate-600 dark:bg-slate-900 dark:text-slate-300">
                 <tr>
                   <th className="px-4 py-3">Name</th>
                   <th className="px-4 py-3">Email</th>
@@ -66,14 +82,14 @@ const UserManagementPage = () => {
               </thead>
               <tbody>
                 {loading ? (
-                  <tr><td colSpan={3} className="px-4 py-6 text-center text-muted-foreground">Loading users...</td></tr>
+                  <tr><td colSpan={3} className="px-4 py-6"><div className="flex items-center justify-center gap-2 text-muted-foreground"><Spinner /> Loading users...</div></td></tr>
                 ) : users.map((user) => (
                   <tr key={user.id} className="border-t border-border">
                     <td className="px-4 py-3">{user.name}</td>
                     <td className="px-4 py-3">{user.email}</td>
                     <td className="px-4 py-3">
                       <select
-                        className="rounded-md border border-border bg-white px-2 py-1"
+                        className="rounded-md border border-border bg-white px-2 py-1 dark:bg-slate-900"
                         value={user.role}
                         onChange={(e) => changeRole(user.id, e.target.value)}
                       >

@@ -2,8 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+* {
+  @apply transition-colors duration-300;
+}
+
 body {
-  @apply bg-background text-foreground antialiased;
+  @apply bg-background text-foreground antialiased dark:bg-slate-950 dark:text-slate-100;
 }
 
 #root {

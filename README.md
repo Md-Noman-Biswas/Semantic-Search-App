@@ -128,3 +128,7 @@ pip install --force-reinstall -r requirements.txt
 - shadcn/ui-style reusable components under `frontend/src/components/ui/`
 - Responsive app shell with sidebar + top navbar
 - Animated dashboard cards and loading states
+
+- Framer Motion for UI transitions and micro-interactions
+- Lucide React icons for sidebar/header navigation
+- Theme persistence (dark/light) via localStorage
