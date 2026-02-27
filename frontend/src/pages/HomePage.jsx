@@ -3,6 +3,7 @@ import { ArrowRight, ShieldCheck, Sparkles, Zap } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { useAuth } from '../context/AuthContext'
 
 const features = [
   { icon: Sparkles, title: 'Smarter Search', text: 'Discover relevant content quickly with semantic indexing.' },
@@ -10,8 +11,11 @@ const features = [
   { icon: Zap, title: 'Fast Workflows', text: 'Create, edit, and manage documents in one streamlined space.' },
 ]
 
-const HomePage = () => (
-  <section className="space-y-8">
+const HomePage = () => {
+  const { user } = useAuth()
+
+  return (
+    <section className="space-y-8">
     <Card className="overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-emerald-900 text-white shadow-xl">
       <CardContent className="grid gap-8 p-8 md:grid-cols-2 md:p-10">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
@@ -20,7 +24,9 @@ const HomePage = () => (
           <p className="mt-4 text-sm text-indigo-100/90 md:text-base">Organize knowledge, collaborate securely, and accelerate document workflows with a clean and responsive control center.</p>
           <div className="mt-6 flex flex-wrap gap-3">
             <Link to="/dashboard"><Button className="group bg-white text-slate-900 hover:bg-slate-100">Open Dashboard <ArrowRight className="ml-2 h-4 w-4 transition group-hover:translate-x-0.5" /></Button></Link>
-            <Link to="/login"><Button variant="outline" className="border-white/70 !bg-transparent text-white hover:!bg-white/10">Sign In</Button></Link>
+            {!user && (
+              <Link to="/login"><Button variant="outline" className="border-white/70 !bg-transparent text-white hover:!bg-white/10">Sign In</Button></Link>
+            )}
           </div>
         </motion.div>
       </CardContent>
@@ -41,7 +47,8 @@ const HomePage = () => (
         )
       })}
     </div>
-  </section>
-)
+    </section>
+  )
+}
 
 export default HomePage
