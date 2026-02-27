@@ -22,6 +22,7 @@ class DocumentUpdate(BaseModel):
 class DocumentOut(DocumentBase):
     id: int
     created_by: int
+    summary_embedding: list[float] | None = None
     created_at: datetime
     updated_at: datetime
 

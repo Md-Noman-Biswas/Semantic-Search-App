@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 
+from app.core.embeddings import EmbeddingError, generate_summary_embedding
 from app.core.database import get_db
 from app.deps import get_current_user
 from app.models.document import Document
@@ -25,7 +26,12 @@ def create_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    doc = Document(**payload.model_dump(), created_by=current_user.id)
+    try:
+        summary_embedding = generate_summary_embedding(payload.summary)
+    except EmbeddingError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    doc = Document(**payload.model_dump(), created_by=current_user.id, summary_embedding=summary_embedding)
     db.add(doc)
     db.commit()
     db.refresh(doc)
@@ -46,7 +52,15 @@ def update_document(
     if current_user.role != "admin" and doc.created_by != current_user.id:
         raise HTTPException(status_code=403, detail="Not authorized")
 
-    for field, value in payload.model_dump(exclude_unset=True).items():
+    updates = payload.model_dump(exclude_unset=True)
+
+    if "summary" in updates:
+        try:
+            doc.summary_embedding = generate_summary_embedding(updates["summary"])
+        except EmbeddingError as exc:
+            raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    for field, value in updates.items():
         setattr(doc, field, value)
 
     db.commit()
