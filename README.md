@@ -72,7 +72,7 @@ DATABASE_URL=sqlite:///./app.db
 
 > Notes: `config.py` currently reads `jwt_secret_key`, `access_token_expire_minutes`, and `database_url` with defaults.
 
-## Frontend setup (React + Vite)
+## Frontend setup (React + Vite + Tailwind CSS)
 
 ```bash
 cd frontend
@@ -120,3 +120,11 @@ python -m venv .venv
 pip install --upgrade pip
 pip install --force-reinstall -r requirements.txt
 ```
+
+
+## Frontend UI Stack
+
+- Tailwind CSS for utility-first styling
+- shadcn/ui-style reusable components under `frontend/src/components/ui/`
+- Responsive app shell with sidebar + top navbar
+- Animated dashboard cards and loading states

@@ -1,14 +1,30 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import DocumentForm from '../components/DocumentForm'
+import { Button } from '../components/ui/button'
+import { Card, CardContent } from '../components/ui/card'
 import api from '../api/client'
+
+const StatCard = ({ label, value }) => (
+  <Card>
+    <CardContent className="p-4">
+      <p className="text-sm text-muted-foreground">{label}</p>
+      <p className="text-2xl font-semibold">{value}</p>
+    </CardContent>
+  </Card>
+)
 
 const AdminDashboard = () => {
   const [documents, setDocuments] = useState([])
   const [editingId, setEditingId] = useState(null)
+  const [saving, setSaving] = useState(false)
+  const [error, setError] = useState('')
+  const [loading, setLoading] = useState(true)
 
   const loadDocuments = async () => {
+    setLoading(true)
     const { data } = await api.get('/api/documents')
     setDocuments(data)
+    setLoading(false)
   }
 
   useEffect(() => {
@@ -16,39 +32,80 @@ const AdminDashboard = () => {
   }, [])
 
   const saveDocument = async (payload) => {
-    if (editingId) {
-      await api.put(`/api/documents/${editingId}`, payload)
-      setEditingId(null)
-    } else {
-      await api.post('/api/documents', payload)
+    setSaving(true)
+    setError('')
+    try {
+      if (editingId) {
+        await api.put(`/api/documents/${editingId}`, payload)
+        setEditingId(null)
+      } else {
+        await api.post('/api/documents', payload)
+      }
+      await loadDocuments()
+    } catch {
+      setError('Unable to save document. Please try again.')
+    } finally {
+      setSaving(false)
     }
-    await loadDocuments()
   }
 
   const selected = documents.find((doc) => doc.id === editingId)
+  const totalDocs = documents.length
+  const userCount = useMemo(() => new Set(documents.map((d) => d.created_by)).size, [documents])
 
   return (
-    <section>
-      <h2>Admin Dashboard</h2>
+    <section className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard label="Total Documents" value={totalDocs} />
+        <StatCard label="Contributing Users" value={userCount} />
+        <StatCard label="In Edit Mode" value={editingId ? 'Yes' : 'No'} />
+      </div>
+
       <DocumentForm
         onSubmit={saveDocument}
         defaultValues={selected}
         onCancel={() => setEditingId(null)}
         submitLabel={editingId ? 'Update Document' : 'Create Document'}
+        loading={saving}
+        error={error}
       />
-      <h3>All Documents</h3>
-      <ul>
-        {documents.map((doc) => (
-          <li key={doc.id} style={{ marginBottom: 12 }}>
-            <strong>{doc.title}</strong> by user #{doc.created_by}
-            <button onClick={() => setEditingId(doc.id)} style={{ marginLeft: 8 }}>
-              Edit
-            </button>
-            <p style={{ margin: '4px 0' }}><strong>Description:</strong> {doc.description}</p>
-            <p style={{ margin: '4px 0' }}><strong>Summary:</strong> {doc.summary}</p>
-          </li>
-        ))}
-      </ul>
+
+      <Card>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-slate-50 text-left text-slate-600">
+                <tr>
+                  <th className="px-4 py-3">Title</th>
+                  <th className="px-4 py-3">Description</th>
+                  <th className="px-4 py-3">Summary</th>
+                  <th className="px-4 py-3">User</th>
+                  <th className="px-4 py-3">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">Loading documents...</td></tr>
+                ) : documents.length === 0 ? (
+                  <tr><td colSpan={5} className="px-4 py-6 text-center text-muted-foreground">No documents found.</td></tr>
+                ) : (
+                  documents.map((doc) => (
+                    <tr key={doc.id} className="border-t border-border hover:bg-slate-50/70">
+                      <td className="px-4 py-3 font-medium">{doc.title}</td>
+                      <td className="px-4 py-3">{doc.description}</td>
+                      <td className="px-4 py-3">{doc.summary}</td>
+                      <td className="px-4 py-3">#{doc.created_by}</td>
+                      <td className="px-4 py-3">
+                        <Button variant="outline" onClick={() => setEditingId(doc.id)}>Edit</Button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </section>
   )
 }
