@@ -88,8 +88,8 @@ const UserDashboard = () => {
                 <CardTitle>{doc.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <p className="text-sm"><span className="font-medium">Description:</span> {doc.description}</p>
-                <p className="text-sm"><span className="font-medium">Summary:</span> {doc.summary}</p>
+                <p className="text-sm text-slate-700 dark:text-slate-200"><span className="font-medium text-slate-900 dark:text-slate-100">Description:</span> {doc.description}</p>
+                <p className="text-sm text-slate-700 dark:text-slate-200"><span className="font-medium text-slate-900 dark:text-slate-100">Summary:</span> {doc.summary}</p>
                 <div className="flex flex-wrap gap-2 pt-2">
                   <Button variant="outline" onClick={() => setEditingId(doc.id)}>Edit</Button>
                   <Button variant="destructive" onClick={() => deleteDocument(doc.id)}>Delete</Button>

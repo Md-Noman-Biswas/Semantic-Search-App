@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 
-const Footer = () => (
-  <footer className="border-t border-border bg-white/90 dark:bg-slate-950/90">
+const Footer = ({ withSidebarOffset = false }) => (
+  <footer className={`relative z-10 border-t border-border bg-white/90 dark:bg-slate-950/90 ${withSidebarOffset ? 'md:pl-64' : ''}`}>
     <div className="mx-auto grid w-full max-w-[1400px] gap-8 px-4 py-10 text-sm text-slate-600 md:grid-cols-4 md:px-6 dark:text-slate-300">
       <div>
         <h4 className="mb-3 font-semibold text-slate-900 dark:text-slate-100">Semantic Search</h4>

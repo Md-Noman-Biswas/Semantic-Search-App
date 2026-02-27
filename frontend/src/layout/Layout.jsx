@@ -36,7 +36,7 @@ const Layout = ({ children }) => {
         </AnimatePresence>
       </main>
 
-      <Footer />
+      <Footer withSidebarOffset={hasDashboardShell} />
     </div>
   )
 }
