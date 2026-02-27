@@ -10,12 +10,22 @@
   color-scheme: dark;
 }
 
-* {
-  @apply transition-colors duration-300;
+@layer base {
+  body {
+    @apply bg-background font-sans text-foreground antialiased dark:bg-slate-950 dark:text-slate-100;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+
+  input,
+  textarea,
+  select,
+  button {
+    font: inherit;
+  }
 }
 
-body {
-  @apply bg-background text-foreground antialiased dark:bg-slate-950 dark:text-slate-100;
+* {
+  @apply transition-colors duration-300;
 }
 
 #root {
