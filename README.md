@@ -132,3 +132,17 @@ pip install --force-reinstall -r requirements.txt
 - Framer Motion for UI transitions and micro-interactions
 - Lucide React icons for sidebar/header navigation
 - Theme persistence (dark/light) via localStorage
+
+
+### Frontend update not visible?
+
+If UI updates are not visible after pulling latest code:
+
+```bash
+cd frontend
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
+
+Then hard refresh your browser (`Ctrl+Shift+R` / `Cmd+Shift+R`).

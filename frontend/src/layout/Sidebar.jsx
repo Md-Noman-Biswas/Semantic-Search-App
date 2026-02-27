@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { FileText, LayoutDashboard, Settings, Users } from 'lucide-react'
+import { FileText, LayoutDashboard, Settings, Sparkles, Users } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 
@@ -29,6 +29,13 @@ const Sidebar = ({ open, onClose }) => {
         transition={{ type: 'spring', stiffness: 260, damping: 26 }}
         className="fixed inset-y-16 left-0 z-40 w-64 overflow-y-auto border-r border-border bg-white p-4 md:translate-x-0 dark:border-slate-800 dark:bg-slate-950"
       >
+        <div className="mb-5 rounded-lg border border-emerald-200 bg-emerald-50 p-3 dark:border-emerald-800 dark:bg-emerald-950/20">
+          <p className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-emerald-700 dark:text-emerald-300">
+            <Sparkles className="h-3.5 w-3.5" /> Latest UI Applied
+          </p>
+          <p className="mt-1 text-xs text-emerald-700/90 dark:text-emerald-300/90">Version: v2 dashboard shell</p>
+        </div>
+
         {groups.map((group) => (
           <div key={group.title} className="mb-6">
             <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">{group.title}</p>

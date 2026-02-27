@@ -26,6 +26,9 @@ const Footer = () => (
         <p>Built with React, Tailwind, FastAPI and SQLAlchemy.</p>
       </div>
     </div>
+    <div className="mx-auto mt-8 w-full max-w-7xl border-t border-border px-4 pt-4 text-xs text-muted-foreground md:px-6 dark:border-slate-800">
+      Latest frontend rollout applied: <span className="font-semibold">UI Refresh v2</span>
+    </div>
   </footer>
 )
 
