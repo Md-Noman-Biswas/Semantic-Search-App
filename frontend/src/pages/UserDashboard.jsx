@@ -27,6 +27,9 @@ const UserDashboard = () => {
 
   const deleteDocument = async (id) => {
     await api.delete(`/api/documents/${id}`)
+    if (editingId === id) {
+      setEditingId(null)
+    }
     await loadDocuments()
   }
 
@@ -35,11 +38,16 @@ const UserDashboard = () => {
   return (
     <section>
       <h2>User Dashboard</h2>
-      <DocumentForm onSubmit={saveDocument} defaultValues={selected} />
+      <DocumentForm
+        onSubmit={saveDocument}
+        defaultValues={selected}
+        onCancel={() => setEditingId(null)}
+        submitLabel={editingId ? 'Update Document' : 'Create Document'}
+      />
       <h3>My Documents</h3>
       <ul>
         {documents.map((doc) => (
-          <li key={doc.id}>
+          <li key={doc.id} style={{ marginBottom: 12 }}>
             <strong>{doc.title}</strong>
             <button onClick={() => setEditingId(doc.id)} style={{ marginLeft: 8 }}>
               Edit
@@ -47,6 +55,8 @@ const UserDashboard = () => {
             <button onClick={() => deleteDocument(doc.id)} style={{ marginLeft: 8 }}>
               Delete
             </button>
+            <p style={{ margin: '4px 0' }}><strong>Description:</strong> {doc.description}</p>
+            <p style={{ margin: '4px 0' }}><strong>Summary:</strong> {doc.summary}</p>
           </li>
         ))}
       </ul>
