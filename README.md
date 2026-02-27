@@ -102,3 +102,21 @@ VITE_API_URL=http://localhost:8000
   - create/edit/delete own documents
 - SQLAlchemy ORM models for `User` and `Document`.
 - Pydantic schemas for input/output validation.
+
+
+## Troubleshooting
+
+If you see this startup error on Windows:
+- `(trapped) error reading bcrypt version`
+- `AttributeError: module 'bcrypt' has no attribute '__about__'`
+
+it usually means an incompatible `bcrypt` version is installed with `passlib`. This project pins `bcrypt==4.0.1` in `backend/requirements.txt`. Recreate your venv and reinstall dependencies:
+
+```bash
+cd backend
+python -m venv .venv
+# Windows
+.venv\Scripts\activate
+pip install --upgrade pip
+pip install --force-reinstall -r requirements.txt
+```
