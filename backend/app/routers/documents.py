@@ -137,6 +137,52 @@ def list_public_documents(db: Session = Depends(get_db)):
     return [serialize_public_document(doc) for doc in documents]
 
 
+@public_router.get("/search", response_model=list[SimilarDocumentOut])
+def semantic_search_documents(query: str, threshold: float = 0, limit: int = 50, db: Session = Depends(get_db)):
+    if threshold < 0 or threshold > 1:
+        raise HTTPException(status_code=400, detail="threshold must be between 0 and 1")
+
+    normalized_query = query.strip()
+    if not normalized_query:
+        return []
+
+    query_embedding = try_generate_embedding(normalized_query)
+    if query_embedding is None:
+        raise HTTPException(status_code=503, detail="Unable to generate query embedding")
+
+    documents = db.query(Document).join(Document.creator).all()
+    if not documents:
+        return []
+
+    updated = False
+    scored: list[SimilarDocumentOut] = []
+
+    for doc in documents:
+        embedding = doc.summary_embedding
+        if not embedding and doc.summary:
+            embedding = try_generate_embedding(doc.summary)
+            if embedding is not None:
+                doc.summary_embedding = embedding
+                updated = True
+
+        if not embedding:
+            continue
+
+        score = cosine_similarity(query_embedding, embedding)
+        if score >= threshold:
+            scored.append(
+                SimilarDocumentOut(
+                    **serialize_public_document(doc).model_dump(),
+                    similarity_score=score,
+                )
+            )
+
+    if updated:
+        db.commit()
+
+    scored.sort(key=lambda item: item.similarity_score, reverse=True)
+    return scored[: max(1, min(limit, 200))]
+
 @public_router.get("/{document_id}", response_model=PublicDocumentOut)
 def get_public_document(document_id: int, db: Session = Depends(get_db)):
     doc = db.query(Document).join(Document.creator).filter(Document.id == document_id).first()
@@ -175,3 +221,4 @@ def list_similar_documents(document_id: int, threshold: float = 0.6, limit: int 
 
     scored.sort(key=lambda item: item.similarity_score, reverse=True)
     return scored[: max(1, min(limit, 5))]
+
