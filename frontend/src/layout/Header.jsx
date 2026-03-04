@@ -98,7 +98,10 @@ const Header = ({ onMenuClick }) => {
               </AnimatePresence>
             </div>
           ) : (
-            <Link to="/login"><Button className="rounded-full">Login</Button></Link>
+            <div className="flex items-center gap-2">
+              <Link to="/register"><Button variant="outline" className="rounded-full">Register</Button></Link>
+              <Link to="/login"><Button className="rounded-full">Login</Button></Link>
+            </div>
           )}
         </div>
       </div>

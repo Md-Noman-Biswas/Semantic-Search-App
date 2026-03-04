@@ -60,6 +60,7 @@ uvicorn app.main:app --reload
 - Default seeded admin user:
   - email: `admin@example.com`
   - password: `admin123`
+- Public registration is available from the frontend at `/register` (creates `role=user`).
 
 ### Environment variables (optional)
 Create `backend/.env` (or copy from `backend/.env.example`):

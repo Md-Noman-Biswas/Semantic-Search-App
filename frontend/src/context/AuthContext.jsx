@@ -48,6 +48,14 @@ export const AuthProvider = ({ children }) => {
     setUser(me.data)
   }
 
+  const register = async ({ name, email, password }) => {
+    const { data } = await api.post('/api/auth/register', { name, email, password })
+    localStorage.setItem('token', data.access_token)
+    setToken(data.access_token)
+    const me = await api.get('/api/users/me')
+    setUser(me.data)
+  }
+
   const logout = () => {
     localStorage.removeItem('token')
     setToken(null)
@@ -67,7 +75,7 @@ export const AuthProvider = ({ children }) => {
   }
 
   const value = useMemo(
-    () => ({ user, token, loading, login, logout, profileImage, updateProfileImage }),
+    () => ({ user, token, loading, login, register, logout, profileImage, updateProfileImage }),
     [user, token, loading, profileImage],
   )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
