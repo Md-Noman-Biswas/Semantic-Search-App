@@ -14,7 +14,7 @@ const navLinkClass = ({ isActive }) =>
   }`
 
 const Header = ({ onMenuClick }) => {
-  const { user, logout } = useAuth()
+  const { user, logout, profileImage } = useAuth()
   const { theme, toggleTheme } = useTheme()
   const [open, setOpen] = useState(false)
   const menuRef = useRef(null)
@@ -61,7 +61,11 @@ const Header = ({ onMenuClick }) => {
           {user ? (
             <div className="relative">
               <Button variant="outline" onClick={() => setOpen((value) => !value)} className="gap-2 rounded-full">
-                <UserCircle2 className="h-4 w-4" />
+                {profileImage ? (
+                  <img src={profileImage} alt="Profile" className="h-6 w-6 rounded-full border border-border object-cover" />
+                ) : (
+                  <UserCircle2 className="h-4 w-4" />
+                )}
                 <span className="hidden sm:block">{user.name}</span>
                 <ChevronDown className="h-4 w-4" />
               </Button>

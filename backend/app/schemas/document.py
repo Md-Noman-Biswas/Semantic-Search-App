@@ -22,7 +22,22 @@ class DocumentUpdate(BaseModel):
 class DocumentOut(DocumentBase):
     id: int
     created_by: int
+    summary_embedding: list[float] | None = None
     created_at: datetime
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PublicDocumentOut(BaseModel):
+    id: int
+    title: str
+    description: str
+    summary: str
+    created_at: datetime
+    author_id: int
+    author_name: str
+
+
+class SimilarDocumentOut(PublicDocumentOut):
+    similarity_score: float

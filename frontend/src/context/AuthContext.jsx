@@ -6,7 +6,10 @@ const AuthContext = createContext(null)
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(localStorage.getItem('token'))
+  const [profileImage, setProfileImage] = useState(null)
   const [loading, setLoading] = useState(true)
+
+  const profileImageKey = user ? `profile_image_${user.id}` : null
 
   useEffect(() => {
     const bootstrap = async () => {
@@ -28,6 +31,15 @@ export const AuthProvider = ({ children }) => {
     bootstrap()
   }, [token])
 
+  useEffect(() => {
+    if (!profileImageKey) {
+      setProfileImage(null)
+      return
+    }
+    const image = localStorage.getItem(profileImageKey)
+    setProfileImage(image)
+  }, [profileImageKey])
+
   const login = async (email, password) => {
     const { data } = await api.post('/api/auth/login', { email, password })
     localStorage.setItem('token', data.access_token)
@@ -40,9 +52,24 @@ export const AuthProvider = ({ children }) => {
     localStorage.removeItem('token')
     setToken(null)
     setUser(null)
+    setProfileImage(null)
   }
 
-  const value = useMemo(() => ({ user, token, loading, login, logout }), [user, token, loading])
+  const updateProfileImage = (imageData) => {
+    if (!profileImageKey) return
+    if (!imageData) {
+      localStorage.removeItem(profileImageKey)
+      setProfileImage(null)
+      return
+    }
+    localStorage.setItem(profileImageKey, imageData)
+    setProfileImage(imageData)
+  }
+
+  const value = useMemo(
+    () => ({ user, token, loading, login, logout, profileImage, updateProfileImage }),
+    [user, token, loading, profileImage],
+  )
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 

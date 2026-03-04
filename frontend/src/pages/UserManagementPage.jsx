@@ -80,25 +80,29 @@ const UserManagementPage = () => {
                   <th className="px-4 py-3">Role</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="text-slate-700 dark:text-slate-100">
                 {loading ? (
                   <tr><td colSpan={3} className="px-4 py-6"><div className="flex items-center justify-center gap-2 text-muted-foreground"><Spinner /> Loading users...</div></td></tr>
-                ) : users.map((user) => (
-                  <tr key={user.id} className="border-t border-border">
-                    <td className="px-4 py-3">{user.name}</td>
-                    <td className="px-4 py-3">{user.email}</td>
-                    <td className="px-4 py-3">
-                      <select
-                        className="rounded-md border border-border bg-white px-2 py-1 text-foreground dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
-                        value={user.role}
-                        onChange={(e) => changeRole(user.id, e.target.value)}
-                      >
-                        <option value="user">user</option>
-                        <option value="admin">admin</option>
-                      </select>
-                    </td>
-                  </tr>
-                ))}
+                ) : users.length === 0 ? (
+                  <tr><td colSpan={3} className="px-4 py-8 text-center text-muted-foreground">No users found.</td></tr>
+                ) : (
+                  users.map((user) => (
+                    <tr key={user.id} className="border-t border-border hover:bg-slate-50/70 dark:hover:bg-slate-900/60">
+                      <td className="px-4 py-3 font-medium">{user.name}</td>
+                      <td className="px-4 py-3">{user.email}</td>
+                      <td className="px-4 py-3">
+                        <select
+                          className="rounded-md border border-border bg-white px-2 py-1 text-foreground dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
+                          value={user.role}
+                          onChange={(e) => changeRole(user.id, e.target.value)}
+                        >
+                          <option value="user">user</option>
+                          <option value="admin">admin</option>
+                        </select>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>

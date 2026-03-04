@@ -1,47 +1,67 @@
 import { motion } from 'framer-motion'
-import { ArrowRight, ShieldCheck, Sparkles, Zap } from 'lucide-react'
+import { CalendarDays, FileText, UserRound } from 'lucide-react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Button } from '../components/ui/button'
+import api from '../api/client'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
+import { Spinner } from '../components/ui/spinner'
 
-const features = [
-  { icon: Sparkles, title: 'Smarter Search', text: 'Discover relevant content quickly with semantic indexing.' },
-  { icon: ShieldCheck, title: 'Role-based Access', text: 'Secure admin and user dashboards with JWT authentication.' },
-  { icon: Zap, title: 'Fast Workflows', text: 'Create, edit, and manage documents in one streamlined space.' },
-]
+const HomePage = () => {
+  const [documents, setDocuments] = useState([])
+  const [loading, setLoading] = useState(true)
 
-const HomePage = () => (
-  <section className="space-y-8">
-    <Card className="overflow-hidden border-0 bg-gradient-to-br from-slate-900 via-indigo-900 to-emerald-900 text-white shadow-xl">
-      <CardContent className="grid gap-8 p-8 md:grid-cols-2 md:p-10">
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-indigo-200">Modern SaaS Dashboard</p>
-          <h1 className="text-3xl font-bold leading-tight md:text-4xl">Semantic search workspace for high-performing teams.</h1>
-          <p className="mt-4 text-sm text-indigo-100/90 md:text-base">Organize knowledge, collaborate securely, and accelerate document workflows with a clean and responsive control center.</p>
-          <div className="mt-6 flex flex-wrap gap-3">
-            <Link to="/dashboard"><Button className="group bg-white text-slate-900 hover:bg-slate-100">Open Dashboard <ArrowRight className="ml-2 h-4 w-4 transition group-hover:translate-x-0.5" /></Button></Link>
-            <Link to="/login"><Button variant="outline" className="border-white/60 bg-transparent text-white hover:bg-white/10">Sign In</Button></Link>
-          </div>
-        </motion.div>
-      </CardContent>
-    </Card>
+  useEffect(() => {
+    const loadPublicDocuments = async () => {
+      setLoading(true)
+      try {
+        const { data } = await api.get('/api/public/documents')
+        setDocuments(data)
+      } finally {
+        setLoading(false)
+      }
+    }
 
-    <div className="grid gap-4 md:grid-cols-3">
-      {features.map((feature) => {
-        const Icon = feature.icon
-        return (
-          <Card key={feature.title} className="border-border/80 shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-base">
-                <Icon className="h-4 w-4 text-indigo-500" /> {feature.title}
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-sm text-muted-foreground">{feature.text}</CardContent>
-          </Card>
-        )
-      })}
-    </div>
-  </section>
-)
+    loadPublicDocuments()
+  }, [])
+
+  return (
+    <section className="space-y-6">
+      <div className="space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Explore Documents</h1>
+        <p className="text-sm text-muted-foreground">Browse all available documents and open any card to view details and discover similar content.</p>
+      </div>
+
+      {loading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground"><Spinner /> Loading documents...</div>
+      ) : documents.length === 0 ? (
+        <Card className="border-dashed">
+          <CardContent className="p-10 text-center text-muted-foreground">No public documents found yet.</CardContent>
+        </Card>
+      ) : (
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+          {documents.map((doc, index) => (
+            <motion.div key={doc.id} initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.03 }}>
+              <Link to={`/documents/${doc.id}`} className="group block h-full">
+                <Card className="h-full border-0 bg-gradient-to-br from-white to-slate-50 shadow-md ring-1 ring-slate-200/90 transition hover:-translate-y-1 hover:shadow-xl dark:from-slate-900 dark:to-slate-950 dark:ring-slate-800">
+                  <CardHeader>
+                    <CardTitle className="line-clamp-2 text-xl group-hover:text-indigo-600 dark:group-hover:text-indigo-300">{doc.title}</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3 text-sm text-slate-700 dark:text-slate-200">
+                    <div className="line-clamp-3 [&_*]:text-inherit" dangerouslySetInnerHTML={{ __html: doc.description }} />
+                    <div className="space-y-1 text-xs text-muted-foreground">
+                      <p className="flex items-center gap-2"><UserRound className="h-3.5 w-3.5" /> {doc.author_name}</p>
+                      <p className="flex items-center gap-2"><CalendarDays className="h-3.5 w-3.5" /> {new Date(doc.created_at).toLocaleDateString()}</p>
+                      <p className="flex items-center gap-2"><FileText className="h-3.5 w-3.5" /> Open detail view</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
 
 export default HomePage
