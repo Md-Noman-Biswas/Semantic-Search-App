@@ -88,7 +88,7 @@ const UserDashboard = () => {
                 <CardTitle>{doc.title}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
-                <div className="text-sm text-slate-700 dark:text-slate-200"><span className="font-medium text-slate-900 dark:text-slate-100">Description:</span> <div className="mt-1 line-clamp-3" dangerouslySetInnerHTML={{ __html: doc.description }} /></div>
+                <div className="text-sm text-slate-700 dark:text-slate-200"><span className="font-medium text-slate-900 dark:text-slate-100">Description:</span> <div className="mt-1 line-clamp-3 [&_*]:text-inherit" dangerouslySetInnerHTML={{ __html: doc.description }} /></div>
                 <p className="text-sm text-slate-700 dark:text-slate-200"><span className="font-medium text-slate-900 dark:text-slate-100">Summary:</span> {doc.summary}</p>
                 <div className="flex flex-wrap gap-2 pt-2">
                   <Button variant="outline" onClick={() => setEditingId(doc.id)}>Edit</Button>

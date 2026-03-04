@@ -59,7 +59,7 @@ const DocumentDetailPage = () => {
             <p className="flex items-center gap-2"><Percent className="h-4 w-4" /> Similarity threshold: {threshold}%</p>
           </div>
 
-          <article className="rounded-lg border border-border bg-slate-50/50 p-4 text-sm dark:bg-slate-900/50" dangerouslySetInnerHTML={{ __html: document.description }} />
+          <article className="rounded-lg border border-border bg-slate-50/50 p-4 text-sm text-slate-700 dark:bg-slate-900/50 dark:text-slate-200 [&_*]:text-inherit" dangerouslySetInnerHTML={{ __html: document.description }} />
 
           <div className="space-y-2">
             <label htmlFor="similarity-slider" className="block text-sm font-medium">Set similarity percentage</label>

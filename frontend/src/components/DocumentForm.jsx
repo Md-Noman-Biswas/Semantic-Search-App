@@ -47,7 +47,7 @@ const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save D
         <form onSubmit={submit} className="grid gap-4">
           <Input name="title" placeholder="Document title" value={form.title} onChange={handleChange} required />
           <div className="space-y-2">
-            <p className="text-sm font-medium">Description</p>
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Description</p>
             <RichTextEditor value={form.description} onChange={handleDescriptionChange} placeholder="Write a clear document description..." />
           </div>
           <Textarea name="summary" placeholder="Summary" value={form.summary} onChange={handleChange} required />

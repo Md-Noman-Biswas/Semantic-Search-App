@@ -20,8 +20,8 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Write here...' }) => {
   }
 
   return (
-    <div className="overflow-hidden rounded-lg border border-border bg-background shadow-sm">
-      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-slate-50 p-2 dark:bg-slate-900/60">
+    <div className="overflow-hidden rounded-lg border border-border bg-white shadow-sm dark:border-slate-700 dark:bg-slate-950">
+      <div className="flex flex-wrap items-center gap-1 border-b border-border bg-slate-100 p-2 dark:border-slate-700 dark:bg-slate-800">
         <Button type="button" size="sm" variant="ghost" onClick={() => exec('undo')} title="Undo"><Undo2 className="h-4 w-4" /></Button>
         <Button type="button" size="sm" variant="ghost" onClick={() => exec('redo')} title="Redo"><Redo2 className="h-4 w-4" /></Button>
         <div className="mx-1 h-5 w-px bg-border" />
@@ -34,7 +34,7 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Write here...' }) => {
       <div
         ref={editorRef}
         contentEditable
-        className="min-h-40 w-full p-3 text-sm outline-none prose prose-sm max-w-none dark:prose-invert"
+        className="min-h-40 w-full bg-white p-3 text-sm text-slate-800 outline-none dark:bg-slate-950 dark:text-slate-100"
         dangerouslySetInnerHTML={{ __html: value }}
         onInput={(event) => onChange(event.currentTarget.innerHTML)}
         data-placeholder={placeholder}

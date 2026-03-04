@@ -105,7 +105,7 @@ const AdminDashboard = () => {
                   documents.map((doc) => (
                     <tr key={doc.id} className="border-t border-border hover:bg-slate-50/70 dark:hover:bg-slate-900/60">
                       <td className="px-4 py-3 font-medium">{doc.title}</td>
-                      <td className="px-4 py-3 text-slate-600 dark:text-slate-200"><div className="line-clamp-2" dangerouslySetInnerHTML={{ __html: doc.description }} /></td>
+                      <td className="px-4 py-3 text-slate-600 dark:text-slate-200"><div className="line-clamp-2 [&_*]:text-inherit" dangerouslySetInnerHTML={{ __html: doc.description }} /></td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-200">{doc.summary}</td>
                       <td className="px-4 py-3 text-slate-600 dark:text-slate-200">#{doc.created_by}</td>
                       <td className="px-4 py-3">

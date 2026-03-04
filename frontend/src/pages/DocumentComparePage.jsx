@@ -11,7 +11,7 @@ const FullDocumentCard = ({ label, document }) => (
     </CardHeader>
     <CardContent>
       <p className="mb-3 text-xs text-muted-foreground">Author: {document.author_name}</p>
-      <article className="text-sm" dangerouslySetInnerHTML={{ __html: document.description }} />
+      <article className="text-sm text-slate-700 dark:text-slate-200 [&_*]:text-inherit" dangerouslySetInnerHTML={{ __html: document.description }} />
     </CardContent>
   </Card>
 )

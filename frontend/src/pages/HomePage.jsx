@@ -27,7 +27,7 @@ const HomePage = () => {
   return (
     <section className="space-y-6">
       <div className="space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight">Explore Documents</h1>
+        <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-slate-100">Explore Documents</h1>
         <p className="text-sm text-muted-foreground">Browse all available documents and open any card to view details and discover similar content.</p>
       </div>
 
@@ -47,7 +47,7 @@ const HomePage = () => {
                     <CardTitle className="line-clamp-2 text-xl group-hover:text-indigo-600 dark:group-hover:text-indigo-300">{doc.title}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3 text-sm text-slate-700 dark:text-slate-200">
-                    <div className="line-clamp-3" dangerouslySetInnerHTML={{ __html: doc.description }} />
+                    <div className="line-clamp-3 [&_*]:text-inherit" dangerouslySetInnerHTML={{ __html: doc.description }} />
                     <div className="space-y-1 text-xs text-muted-foreground">
                       <p className="flex items-center gap-2"><UserRound className="h-3.5 w-3.5" /> {doc.author_name}</p>
                       <p className="flex items-center gap-2"><CalendarDays className="h-3.5 w-3.5" /> {new Date(doc.created_at).toLocaleDateString()}</p>
