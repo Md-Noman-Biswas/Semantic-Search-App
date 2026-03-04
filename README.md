@@ -77,11 +77,14 @@ EMBEDDINGS_API_KEY=your_github_models_token
 GITHUB_TOKEN=your_github_models_token
 EMBEDDINGS_MODEL=text-embedding-3-small
 EMBEDDINGS_BASE_URL=https://models.inference.ai.azure.com
+SUMMARY_MODEL=openai/gpt-4o-mini
+LLM_BASE_URL=https://models.inference.ai.azure.com
 ```
 
 > Notes:
 > - Backend settings now load from `backend/.env` automatically.
 > - For embedding auth, you can use either `EMBEDDINGS_API_KEY` or `GITHUB_TOKEN`.
+> - Summary auto-generation uses `SUMMARY_MODEL` (default: `openai/gpt-4o-mini`) via `/chat/completions`.
 
 ## Frontend setup (React + Vite + Tailwind CSS)
 

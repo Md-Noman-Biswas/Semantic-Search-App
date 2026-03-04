@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import api from '../api/client'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
@@ -9,10 +10,15 @@ const initialState = { title: '', description: '', summary: '' }
 
 const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save Document', loading = false, error = '' }) => {
   const [form, setForm] = useState(initialState)
+  const [summaryLoading, setSummaryLoading] = useState(false)
+  const [summaryError, setSummaryError] = useState('')
+  const [summaryTouched, setSummaryTouched] = useState(false)
+  const debounceRef = useRef(null)
   const embedding = defaultValues?.summary_embedding
   const embeddingPreview = Array.isArray(embedding) ? embedding.slice(0, 24).map((value) => Number(value).toFixed(6)).join(', ') : ''
 
   useEffect(() => {
+    setSummaryTouched(false)
     setForm(
       defaultValues
         ? {
@@ -26,6 +32,7 @@ const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save D
 
   const handleChange = (event) => {
     const { name, value } = event.target
+    if (name === 'summary') setSummaryTouched(true)
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
@@ -37,6 +44,34 @@ const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save D
     event.preventDefault()
     onSubmit(form)
   }
+
+  useEffect(() => {
+    const title = form.title.trim()
+    const description = form.description.trim()
+
+    if (summaryTouched || !title || !description) return
+
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current)
+    }
+
+    debounceRef.current = window.setTimeout(async () => {
+      setSummaryLoading(true)
+      setSummaryError('')
+      try {
+        const { data } = await api.post('/api/documents/generate-summary', { title: form.title, description: form.description })
+        setForm((prev) => ({ ...prev, summary: data.summary }))
+      } catch {
+        setSummaryError('Auto summary generation failed. You can type it manually.')
+      } finally {
+        setSummaryLoading(false)
+      }
+    }, 700)
+
+    return () => {
+      if (debounceRef.current) window.clearTimeout(debounceRef.current)
+    }
+  }, [form.title, form.description, summaryTouched])
 
   return (
     <Card className="mb-6">
@@ -50,7 +85,14 @@ const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save D
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Description</p>
             <RichTextEditor value={form.description} onChange={handleDescriptionChange} placeholder="Write a clear document description..." />
           </div>
-          <Textarea name="summary" placeholder="Summary" value={form.summary} onChange={handleChange} required />
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Summary</p>
+              {summaryLoading && <p className="text-xs text-muted-foreground">Generating with gpt-4o-mini...</p>}
+            </div>
+            <Textarea name="summary" placeholder="Summary" value={form.summary} onChange={handleChange} required />
+            {summaryError && <p className="text-xs text-amber-600 dark:text-amber-300">{summaryError}</p>}
+          </div>
 
           {defaultValues && (
             <div className="space-y-2 rounded-md border border-border bg-slate-50/60 p-3 dark:bg-slate-900/50">

@@ -3,11 +3,20 @@ from math import sqrt
 from sqlalchemy.orm import Session
 
 from app.core.embeddings import EmbeddingError, generate_summary_embedding
+from app.core.summaries import SummaryGenerationError, generate_document_summary
 from app.core.database import get_db
 from app.deps import get_current_user
 from app.models.document import Document
 from app.models.user import User
-from app.schemas.document import DocumentCreate, DocumentOut, DocumentUpdate, PublicDocumentOut, SimilarDocumentOut
+from app.schemas.document import (
+    DocumentCreate,
+    DocumentOut,
+    DocumentUpdate,
+    PublicDocumentOut,
+    SimilarDocumentOut,
+    SummaryGenerateRequest,
+    SummaryGenerateResponse,
+)
 
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -83,6 +92,15 @@ def create_document(
     db.commit()
     db.refresh(doc)
     return doc
+
+
+@router.post("/generate-summary", response_model=SummaryGenerateResponse)
+def generate_summary(payload: SummaryGenerateRequest, current_user: User = Depends(get_current_user)):
+    try:
+        summary = generate_document_summary(payload.title, payload.description)
+        return SummaryGenerateResponse(summary=summary)
+    except SummaryGenerationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.put("/{document_id}", response_model=DocumentOut)
