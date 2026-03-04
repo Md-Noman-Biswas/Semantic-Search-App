@@ -39,3 +39,8 @@
 #root {
   min-height: 100vh;
 }
+
+[contenteditable][data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  @apply text-slate-400;
+}
