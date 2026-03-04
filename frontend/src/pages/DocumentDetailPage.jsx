@@ -63,15 +63,23 @@ const DocumentDetailPage = () => {
 
           <div className="space-y-2">
             <label htmlFor="similarity-slider" className="block text-sm font-medium">Set similarity percentage</label>
-            <input
-              id="similarity-slider"
-              type="range"
-              min="1"
-              max="100"
-              value={threshold}
-              onChange={(event) => setThreshold(Number(event.target.value))}
-              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-indigo-600"
-            />
+            <div className="relative pt-8">
+              <div
+                className="pointer-events-none absolute top-0 rounded-md bg-indigo-600 px-2 py-1 text-xs font-medium text-white shadow"
+                style={{ left: `calc(${threshold}% - 24px)` }}
+              >
+                {threshold}%
+              </div>
+              <input
+                id="similarity-slider"
+                type="range"
+                min="1"
+                max="100"
+                value={threshold}
+                onChange={(event) => setThreshold(Number(event.target.value))}
+                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-indigo-600"
+              />
+            </div>
           </div>
 
           <Button onClick={findSimilar} disabled={searching}>{searching ? 'Searching...' : 'Find Similar Documents'}</Button>
