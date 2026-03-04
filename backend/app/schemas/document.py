@@ -26,3 +26,7 @@ class DocumentOut(DocumentBase):
     updated_at: datetime
 
     model_config = ConfigDict(from_attributes=True)
+
+
+class PublicDocumentOut(DocumentOut):
+    author_name: str
