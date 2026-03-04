@@ -56,6 +56,7 @@ def seed_admin_user():
 app.include_router(auth.router)
 app.include_router(users.router)
 app.include_router(documents.router)
+app.include_router(documents.public_router)
 
 
 @app.get("/")

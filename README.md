@@ -62,18 +62,26 @@ uvicorn app.main:app --reload
   - password: `admin123`
 
 ### Environment variables (optional)
-Create `backend/.env`:
+Create `backend/.env` (or copy from `backend/.env.example`):
+
+```bash
+cd backend
+cp .env.example .env
+```
 
 ```env
 JWT_SECRET_KEY=your_secret
 ACCESS_TOKEN_EXPIRE_MINUTES=60
 DATABASE_URL=sqlite:///./app.db
 EMBEDDINGS_API_KEY=your_github_models_token
+GITHUB_TOKEN=your_github_models_token
 EMBEDDINGS_MODEL=text-embedding-3-small
 EMBEDDINGS_BASE_URL=https://models.inference.ai.azure.com
 ```
 
-> Notes: `config.py` currently reads `jwt_secret_key`, `access_token_expire_minutes`, `database_url`, `embeddings_api_key`, `embeddings_model`, and `embeddings_base_url` with defaults.
+> Notes:
+> - Backend settings now load from `backend/.env` automatically.
+> - For embedding auth, you can use either `EMBEDDINGS_API_KEY` or `GITHUB_TOKEN`.
 
 ## Frontend setup (React + Vite + Tailwind CSS)
 

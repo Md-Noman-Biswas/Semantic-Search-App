@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Input } from './ui/input'
+import RichTextEditor from './RichTextEditor'
 import { Textarea } from './ui/textarea'
 
 const initialState = { title: '', description: '', summary: '' }
@@ -28,6 +29,10 @@ const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save D
     setForm((prev) => ({ ...prev, [name]: value }))
   }
 
+  const handleDescriptionChange = (value) => {
+    setForm((prev) => ({ ...prev, description: value }))
+  }
+
   const submit = (event) => {
     event.preventDefault()
     onSubmit(form)
@@ -41,7 +46,10 @@ const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save D
       <CardContent>
         <form onSubmit={submit} className="grid gap-4">
           <Input name="title" placeholder="Document title" value={form.title} onChange={handleChange} required />
-          <Textarea name="description" placeholder="Description" value={form.description} onChange={handleChange} required />
+          <div className="space-y-2">
+            <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Description</p>
+            <RichTextEditor value={form.description} onChange={handleDescriptionChange} placeholder="Write a clear document description..." />
+          </div>
           <Textarea name="summary" placeholder="Summary" value={form.summary} onChange={handleChange} required />
 
           {defaultValues && (
