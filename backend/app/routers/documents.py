@@ -5,7 +5,7 @@ from app.core.database import get_db
 from app.deps import get_current_user
 from app.models.document import Document
 from app.models.user import User
-from app.schemas.document import DocumentCreate, DocumentOut, DocumentUpdate
+from app.schemas.document import DocumentCreate, DocumentOut, DocumentUpdate, PublicDocumentOut
 
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -17,6 +17,53 @@ def list_documents(current_user: User = Depends(get_current_user), db: Session =
     if current_user.role != "admin":
         query = query.filter(Document.created_by == current_user.id)
     return query.order_by(Document.created_at.desc()).all()
+
+
+@router.get("/public", response_model=list[PublicDocumentOut])
+def list_public_documents(db: Session = Depends(get_db)):
+    docs = (
+        db.query(Document, User.name)
+        .join(User, Document.created_by == User.id)
+        .order_by(Document.created_at.desc())
+        .all()
+    )
+    return [
+        PublicDocumentOut(
+            id=doc.id,
+            title=doc.title,
+            description=doc.description,
+            summary=doc.summary,
+            created_by=doc.created_by,
+            created_at=doc.created_at,
+            updated_at=doc.updated_at,
+            author_name=author_name,
+        )
+        for doc, author_name in docs
+    ]
+
+
+@router.get("/public/{document_id}", response_model=PublicDocumentOut)
+def get_public_document(document_id: int, db: Session = Depends(get_db)):
+    result = (
+        db.query(Document, User.name)
+        .join(User, Document.created_by == User.id)
+        .filter(Document.id == document_id)
+        .first()
+    )
+    if not result:
+        raise HTTPException(status_code=404, detail="Document not found")
+
+    doc, author_name = result
+    return PublicDocumentOut(
+        id=doc.id,
+        title=doc.title,
+        description=doc.description,
+        summary=doc.summary,
+        created_by=doc.created_by,
+        created_at=doc.created_at,
+        updated_at=doc.updated_at,
+        author_name=author_name,
+    )
 
 
 @router.post("/", response_model=DocumentOut, status_code=201)

@@ -3,6 +3,8 @@ import ProtectedRoute from './components/ProtectedRoute'
 import { useAuth } from './context/AuthContext'
 import Layout from './layout/Layout'
 import AdminDashboard from './pages/AdminDashboard'
+import DocumentComparisonPage from './pages/DocumentComparisonPage'
+import DocumentDetailPage from './pages/DocumentDetailPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
 import ProfilePage from './pages/ProfilePage'
@@ -23,6 +25,8 @@ const App = () => {
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/documents/:documentId" element={<DocumentDetailPage />} />
+        <Route path="/documents/:documentId/compare/:matchId" element={<DocumentComparisonPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
         <Route path="/users" element={<ProtectedRoute role="admin"><UserManagementPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
