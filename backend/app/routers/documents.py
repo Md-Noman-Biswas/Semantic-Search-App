@@ -56,6 +56,16 @@ def try_generate_embedding(summary: str) -> list[float] | None:
         return None
 
 
+def ensure_embedding(doc: Document) -> bool:
+    if doc.summary_embedding or not doc.summary:
+        return False
+    embedding = try_generate_embedding(doc.summary)
+    if embedding is None:
+        return False
+    doc.summary_embedding = embedding
+    return True
+
+
 @router.get("/", response_model=list[DocumentOut])
 def list_documents(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     query = db.query(Document)
@@ -65,11 +75,7 @@ def list_documents(current_user: User = Depends(get_current_user), db: Session =
 
     updated = False
     for doc in documents:
-        if doc.summary and not doc.summary_embedding:
-            embedding = try_generate_embedding(doc.summary)
-            if embedding is not None:
-                doc.summary_embedding = embedding
-                updated = True
+        updated = ensure_embedding(doc) or updated
 
     if updated:
         db.commit()
@@ -152,7 +158,53 @@ def delete_document(
 @public_router.get("/", response_model=list[PublicDocumentOut])
 def list_public_documents(db: Session = Depends(get_db)):
     documents = db.query(Document).join(Document.creator).order_by(Document.created_at.desc()).all()
+    updated = False
+    for doc in documents:
+        updated = ensure_embedding(doc) or updated
+    if updated:
+        db.commit()
+        for doc in documents:
+            db.refresh(doc)
     return [serialize_public_document(doc) for doc in documents]
+
+
+@public_router.get("/search", response_model=list[SimilarDocumentOut])
+def semantic_search_public_documents(q: str, limit: int = 10, db: Session = Depends(get_db)):
+    query = q.strip()
+    if not query:
+        return []
+
+    documents = db.query(Document).join(Document.creator).order_by(Document.created_at.desc()).all()
+    query_embedding = try_generate_embedding(query)
+    max_limit = max(1, min(limit, 20))
+
+    updated = False
+    scored: list[SimilarDocumentOut] = []
+
+    for doc in documents:
+        updated = ensure_embedding(doc) or updated
+        score = 0.0
+
+        if query_embedding and doc.summary_embedding:
+            score = cosine_similarity(query_embedding, doc.summary_embedding)
+        else:
+            searchable = f"{doc.title} {doc.summary} {doc.description}".lower()
+            if query.lower() in searchable:
+                score = 0.55
+
+        if score > 0:
+            scored.append(
+                SimilarDocumentOut(
+                    **serialize_public_document(doc).model_dump(),
+                    similarity_score=score,
+                )
+            )
+
+    if updated:
+        db.commit()
+
+    scored.sort(key=lambda item: item.similarity_score, reverse=True)
+    return scored[:max_limit]
 
 
 @public_router.get("/{document_id}", response_model=PublicDocumentOut)
@@ -171,6 +223,11 @@ def list_similar_documents(document_id: int, threshold: float = 0.6, limit: int 
     doc = db.query(Document).join(Document.creator).filter(Document.id == document_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
+
+    if not doc.summary_embedding:
+        if ensure_embedding(doc):
+            db.commit()
+            db.refresh(doc)
 
     if not doc.summary_embedding:
         raise HTTPException(status_code=400, detail="Selected document has no embedding")
@@ -193,3 +250,4 @@ def list_similar_documents(document_id: int, threshold: float = 0.6, limit: int 
 
     scored.sort(key=lambda item: item.similarity_score, reverse=True)
     return scored[: max(1, min(limit, 5))]
+

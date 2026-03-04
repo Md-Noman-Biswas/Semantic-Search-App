@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion'
 import { CalendarDays, FileText, Search, UserRound } from 'lucide-react'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import api from '../api/client'
 import { Input } from '../components/ui/input'
@@ -9,8 +9,11 @@ import { Spinner } from '../components/ui/spinner'
 
 const HomePage = () => {
   const [documents, setDocuments] = useState([])
+  const [semanticResults, setSemanticResults] = useState([])
+  const [searching, setSearching] = useState(false)
   const [loading, setLoading] = useState(true)
   const [query, setQuery] = useState('')
+  const debounceRef = useRef(null)
 
   useEffect(() => {
     const loadPublicDocuments = async () => {
@@ -26,15 +29,50 @@ const HomePage = () => {
     loadPublicDocuments()
   }, [])
 
+  useEffect(() => {
+    const normalizedQuery = query.trim()
+    if (!normalizedQuery) {
+      setSemanticResults([])
+      setSearching(false)
+      return
+    }
+
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current)
+    }
+
+    debounceRef.current = window.setTimeout(async () => {
+      setSearching(true)
+      try {
+        const { data } = await api.get('/api/public/documents/search', { params: { q: normalizedQuery, limit: 12 } })
+        setSemanticResults(data)
+      } catch {
+        setSemanticResults([])
+      } finally {
+        setSearching(false)
+      }
+    }, 400)
+
+    return () => {
+      if (debounceRef.current) {
+        window.clearTimeout(debounceRef.current)
+      }
+    }
+  }, [query])
+
   const filteredDocuments = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase()
     if (!normalizedQuery) return documents
+
+    if (semanticResults.length > 0) {
+      return semanticResults
+    }
 
     return documents.filter((doc) => {
       const searchable = `${doc.title} ${doc.author_name} ${doc.summary} ${doc.description}`.toLowerCase()
       return searchable.includes(normalizedQuery)
     })
-  }, [documents, query])
+  }, [documents, query, semanticResults])
 
   return (
     <section className="space-y-6">
@@ -52,6 +90,12 @@ const HomePage = () => {
           className="pl-9"
         />
       </div>
+
+      {query.trim() && (
+        <p className="text-xs text-muted-foreground">
+          {searching ? 'Searching semantically...' : `Showing ${filteredDocuments.length} semantic result(s)`}
+        </p>
+      )}
 
       {loading ? (
         <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-card p-12 text-muted-foreground"><Spinner /> Loading documents...</div>
@@ -78,6 +122,7 @@ const HomePage = () => {
                       <p className="flex items-center gap-2"><UserRound className="h-3.5 w-3.5" /> {doc.author_name}</p>
                       <p className="flex items-center gap-2"><CalendarDays className="h-3.5 w-3.5" /> {new Date(doc.created_at).toLocaleDateString()}</p>
                       <p className="flex items-center gap-2"><FileText className="h-3.5 w-3.5" /> Open detail view</p>
+                      {'similarity_score' in doc && <p>Relevance: {(doc.similarity_score * 100).toFixed(2)}%</p>}
                     </div>
                   </CardContent>
                 </Card>
