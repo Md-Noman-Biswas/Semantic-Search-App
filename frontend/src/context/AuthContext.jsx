@@ -18,7 +18,7 @@ export const AuthProvider = ({ children }) => {
         return
       }
       try {
-        const { data } = await api.get('/api/users/me')
+        const { data } = await api.get('/users/me')
         setUser(data)
       } catch {
         localStorage.removeItem('token')
@@ -41,7 +41,7 @@ export const AuthProvider = ({ children }) => {
   }, [profileImageKey])
 
   const login = async (email, password) => {
-    const { data } = await api.post('/api/auth/login', { email, password })
+    const { data } = await api.post('auth/login', { email, password })
     localStorage.setItem('token', data.access_token)
     setToken(data.access_token)
     const me = await api.get('/api/users/me')
@@ -49,10 +49,10 @@ export const AuthProvider = ({ children }) => {
   }
 
   const register = async ({ name, email, password }) => {
-    const { data } = await api.post('/api/auth/register', { name, email, password })
+    const { data } = await api.post('auth/register', { name, email, password })
     localStorage.setItem('token', data.access_token)
     setToken(data.access_token)
-    const me = await api.get('/api/users/me')
+    const me = await api.get('users/me')
     setUser(me.data)
   }
 
