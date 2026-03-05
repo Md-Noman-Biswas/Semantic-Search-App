@@ -9,6 +9,15 @@ class DocumentCreate(BaseModel):
     summary: str | None = None
 
 
+class SummaryGenerateRequest(BaseModel):
+    title: str
+    description: str
+
+
+class SummaryGenerateResponse(BaseModel):
+    summary: str
+
+
 class DocumentUpdate(BaseModel):
     title: str | None = None
     description: str | None = None

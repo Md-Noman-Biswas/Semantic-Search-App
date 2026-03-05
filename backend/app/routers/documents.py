@@ -8,7 +8,15 @@ from app.core.summary import SummaryError, generate_summary, generate_summary_fa
 from app.deps import get_current_user
 from app.models.document import Document
 from app.models.user import User
-from app.schemas.document import DocumentCreate, DocumentOut, DocumentUpdate, PublicDocumentOut, SimilarDocumentOut
+from app.schemas.document import (
+    DocumentCreate,
+    DocumentOut,
+    DocumentUpdate,
+    PublicDocumentOut,
+    SimilarDocumentOut,
+    SummaryGenerateRequest,
+    SummaryGenerateResponse,
+)
 
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -46,6 +54,19 @@ def try_generate_embedding(summary: str) -> list[float] | None:
         return generate_summary_embedding(summary)
     except EmbeddingError:
         return None
+
+
+@router.post("/generate-summary", response_model=SummaryGenerateResponse)
+def generate_document_summary(
+    payload: SummaryGenerateRequest,
+    current_user: User = Depends(get_current_user),
+):
+    _ = current_user
+    try:
+        summary = generate_summary(payload.title, payload.description)
+    except SummaryError:
+        summary = generate_summary_fallback(payload.title, payload.description)
+    return SummaryGenerateResponse(summary=summary)
 
 
 @router.get("/", response_model=list[DocumentOut])

@@ -86,8 +86,8 @@ const DocumentDetailPage = () => {
           <CardContent>
             <div className="space-y-3">
               {similar.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border p-3">
-                  <p className="font-semibold">{item.title}</p>
+                <div key={item.id} className="rounded-lg border border-border bg-white/60 p-3 dark:bg-slate-900/40">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{item.title || "Untitled document"}</p>
                   <p className="text-xs text-muted-foreground">Similarity: {(item.similarity_score * 100).toFixed(2)}%</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Link to={`/documents/${item.id}`}><Button size="sm" variant="outline">Open Detail</Button></Link>
