@@ -8,6 +8,17 @@ from app.models import User
 from app.routers import auth, documents, users
 
 
+app = FastAPI(title="Semantic Search App API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 Base.metadata.create_all(bind=engine)
 
 
@@ -20,16 +31,6 @@ def ensure_documents_embedding_column() -> None:
         if "summary_embedding" not in columns:
             connection.execute(text("ALTER TABLE documents ADD COLUMN summary_embedding JSON"))
             connection.commit()
-
-app = FastAPI(title="Semantic Search App API")
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 
 @app.on_event("startup")
