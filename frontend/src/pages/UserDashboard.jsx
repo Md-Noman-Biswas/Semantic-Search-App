@@ -28,6 +28,11 @@ const UserDashboard = () => {
     loadDocuments()
   }, [])
 
+  const generateSummary = async ({ title, description }) => {
+    const { data } = await api.post('/api/documents/generate-summary', { title, description })
+    return data.summary
+  }
+
   const saveDocument = async (payload) => {
     setSaving(true)
     setError('')
@@ -67,6 +72,7 @@ const UserDashboard = () => {
     <section className="space-y-6">
       <DocumentForm
         onSubmit={saveDocument}
+        onGenerateSummary={generateSummary}
         defaultValues={selected}
         onCancel={() => setEditingId(null)}
         submitLabel={editingId ? 'Update Document' : 'Create Document'}

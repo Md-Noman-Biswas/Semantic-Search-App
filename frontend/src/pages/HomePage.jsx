@@ -122,7 +122,7 @@ const HomePage = () => {
                   <Link to={`/documents/${doc.id}`} className="group block h-full">
                     <Card className="h-full border-0 bg-gradient-to-br from-white to-slate-50 shadow-md ring-1 ring-slate-200/90 transition hover:-translate-y-1 hover:shadow-xl dark:from-slate-900 dark:to-slate-950 dark:ring-slate-800">
                       <CardHeader>
-                        <CardTitle className="line-clamp-2 text-xl group-hover:text-indigo-600 dark:group-hover:text-indigo-300">{doc.title}</CardTitle>
+                        <CardTitle className="line-clamp-2 text-xl group-hover:text-indigo-600 dark:group-hover:text-indigo-300">{doc.title || "Untitled document"}</CardTitle>
                       </CardHeader>
                       <CardContent className="space-y-3 text-sm text-slate-700 dark:text-slate-200">
                         <div className="line-clamp-3 [&_*]:text-inherit" dangerouslySetInnerHTML={{ __html: doc.description }} />

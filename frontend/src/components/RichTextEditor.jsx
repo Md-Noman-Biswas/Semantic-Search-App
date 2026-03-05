@@ -1,5 +1,5 @@
 import { Bold, Italic, List, ListOrdered, Quote, Redo2, Undo2 } from 'lucide-react'
-import { useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Button } from './ui/button'
 
 const toolbarButtons = [
@@ -13,10 +13,21 @@ const toolbarButtons = [
 const RichTextEditor = ({ value, onChange, placeholder = 'Write here...' }) => {
   const editorRef = useRef(null)
 
+  useEffect(() => {
+    const nextValue = value ?? ''
+    if (editorRef.current && editorRef.current.innerHTML !== nextValue) {
+      editorRef.current.innerHTML = nextValue
+    }
+  }, [value])
+
+  const emitChange = () => {
+    onChange(editorRef.current?.innerHTML ?? '')
+  }
+
   const exec = (command, commandValue) => {
     editorRef.current?.focus()
     document.execCommand(command, false, commandValue)
-    onChange(editorRef.current?.innerHTML ?? '')
+    emitChange()
   }
 
   return (
@@ -34,9 +45,10 @@ const RichTextEditor = ({ value, onChange, placeholder = 'Write here...' }) => {
       <div
         ref={editorRef}
         contentEditable
-        className="min-h-40 w-full bg-white p-3 text-sm text-slate-800 outline-none dark:bg-slate-950 dark:text-slate-100"
-        dangerouslySetInnerHTML={{ __html: value }}
-        onInput={(event) => onChange(event.currentTarget.innerHTML)}
+        suppressContentEditableWarning
+        dir="ltr"
+        className="min-h-40 w-full bg-white p-3 text-left text-sm text-slate-800 outline-none dark:bg-slate-950 dark:text-slate-100"
+        onInput={emitChange}
         data-placeholder={placeholder}
       />
     </div>
