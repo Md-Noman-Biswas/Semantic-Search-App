@@ -50,7 +50,7 @@ const DocumentForm = ({ onSubmit, defaultValues, onCancel, submitLabel = 'Save D
             <p className="text-sm font-medium text-slate-900 dark:text-slate-100">Description</p>
             <RichTextEditor value={form.description} onChange={handleDescriptionChange} placeholder="Write a clear document description..." />
           </div>
-          <Textarea name="summary" placeholder="Summary" value={form.summary} onChange={handleChange} required />
+          <Textarea name="summary" placeholder="Summary (leave blank to auto-generate with AI)" value={form.summary} onChange={handleChange} />
 
           {defaultValues && (
             <div className="space-y-2 rounded-md border border-border bg-slate-50/60 p-3 dark:bg-slate-900/50">

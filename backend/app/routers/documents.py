@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 
 from app.core.embeddings import EmbeddingError, generate_summary_embedding
 from app.core.database import get_db
+from app.core.summary import SummaryError, generate_summary, generate_summary_fallback
 from app.deps import get_current_user
 from app.models.document import Document
 from app.models.user import User
@@ -76,9 +77,18 @@ def create_document(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    summary_embedding = try_generate_embedding(payload.summary)
+    summary = (payload.summary or "").strip()
+    if not summary:
+        try:
+            summary = generate_summary(payload.title, payload.description)
+        except SummaryError:
+            summary = generate_summary_fallback(payload.title, payload.description)
 
-    doc = Document(**payload.model_dump(), created_by=current_user.id, summary_embedding=summary_embedding)
+    summary_embedding = try_generate_embedding(summary)
+
+    doc_payload = payload.model_dump()
+    doc_payload["summary"] = summary
+    doc = Document(**doc_payload, created_by=current_user.id, summary_embedding=summary_embedding)
     db.add(doc)
     db.commit()
     db.refresh(doc)

@@ -3,14 +3,10 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 
 
-class DocumentBase(BaseModel):
+class DocumentCreate(BaseModel):
     title: str
     description: str
-    summary: str
-
-
-class DocumentCreate(DocumentBase):
-    pass
+    summary: str | None = None
 
 
 class DocumentUpdate(BaseModel):
@@ -19,8 +15,11 @@ class DocumentUpdate(BaseModel):
     summary: str | None = None
 
 
-class DocumentOut(DocumentBase):
+class DocumentOut(BaseModel):
     id: int
+    title: str
+    description: str
+    summary: str
     created_by: int
     summary_embedding: list[float] | None = None
     created_at: datetime

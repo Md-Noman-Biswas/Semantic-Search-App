@@ -71,6 +71,12 @@ DATABASE_URL=sqlite:///./app.db
 EMBEDDINGS_API_KEY=your_github_models_token
 EMBEDDINGS_MODEL=text-embedding-3-small
 EMBEDDINGS_BASE_URL=https://models.inference.ai.azure.com
+
+# AI summary generation (used when summary is blank on create)
+SUMMARY_MODEL=gpt-4o-mini
+LLM_BASE_URL=https://models.inference.ai.azure.com
+# optional if different from EMBEDDINGS_API_KEY
+LLM_API_KEY=your_github_models_token
 ```
 
 > Notes: `config.py` currently reads `jwt_secret_key`, `access_token_expire_minutes`, `database_url`, `embeddings_api_key`, `embeddings_model`, and `embeddings_base_url` with defaults.
