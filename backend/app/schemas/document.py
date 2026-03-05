@@ -41,3 +41,12 @@ class PublicDocumentOut(BaseModel):
 
 class SimilarDocumentOut(PublicDocumentOut):
     similarity_score: float
+
+
+class SummaryGenerateRequest(BaseModel):
+    title: str
+    description: str
+
+
+class SummaryGenerateResponse(BaseModel):
+    summary: str

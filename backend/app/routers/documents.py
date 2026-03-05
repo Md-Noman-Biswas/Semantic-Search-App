@@ -3,11 +3,20 @@ from math import sqrt
 from sqlalchemy.orm import Session
 
 from app.core.embeddings import EmbeddingError, generate_summary_embedding
+from app.core.summaries import SummaryGenerationError, generate_document_summary
 from app.core.database import get_db
 from app.deps import get_current_user
 from app.models.document import Document
 from app.models.user import User
-from app.schemas.document import DocumentCreate, DocumentOut, DocumentUpdate, PublicDocumentOut, SimilarDocumentOut
+from app.schemas.document import (
+    DocumentCreate,
+    DocumentOut,
+    DocumentUpdate,
+    PublicDocumentOut,
+    SimilarDocumentOut,
+    SummaryGenerateRequest,
+    SummaryGenerateResponse,
+)
 
 
 router = APIRouter(prefix="/api/documents", tags=["documents"])
@@ -47,6 +56,16 @@ def try_generate_embedding(summary: str) -> list[float] | None:
         return None
 
 
+def ensure_embedding(doc: Document) -> bool:
+    if doc.summary_embedding or not doc.summary:
+        return False
+    embedding = try_generate_embedding(doc.summary)
+    if embedding is None:
+        return False
+    doc.summary_embedding = embedding
+    return True
+
+
 @router.get("/", response_model=list[DocumentOut])
 def list_documents(current_user: User = Depends(get_current_user), db: Session = Depends(get_db)):
     query = db.query(Document)
@@ -56,11 +75,7 @@ def list_documents(current_user: User = Depends(get_current_user), db: Session =
 
     updated = False
     for doc in documents:
-        if doc.summary and not doc.summary_embedding:
-            embedding = try_generate_embedding(doc.summary)
-            if embedding is not None:
-                doc.summary_embedding = embedding
-                updated = True
+        updated = ensure_embedding(doc) or updated
 
     if updated:
         db.commit()
@@ -83,6 +98,15 @@ def create_document(
     db.commit()
     db.refresh(doc)
     return doc
+
+
+@router.post("/generate-summary", response_model=SummaryGenerateResponse)
+def generate_summary(payload: SummaryGenerateRequest, current_user: User = Depends(get_current_user)):
+    try:
+        summary = generate_document_summary(payload.title, payload.description)
+        return SummaryGenerateResponse(summary=summary)
+    except SummaryGenerationError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
 
 @router.put("/{document_id}", response_model=DocumentOut)
@@ -134,8 +158,61 @@ def delete_document(
 @public_router.get("/", response_model=list[PublicDocumentOut])
 def list_public_documents(db: Session = Depends(get_db)):
     documents = db.query(Document).join(Document.creator).order_by(Document.created_at.desc()).all()
+    updated = False
+    for doc in documents:
+        updated = ensure_embedding(doc) or updated
+    if updated:
+        db.commit()
+        for doc in documents:
+            db.refresh(doc)
     return [serialize_public_document(doc) for doc in documents]
 
+
+@public_router.get("/search", response_model=list[SimilarDocumentOut])
+def semantic_search_documents(query: str, threshold: float = 0, limit: int = 50, db: Session = Depends(get_db)):
+    if threshold < 0 or threshold > 1:
+        raise HTTPException(status_code=400, detail="threshold must be between 0 and 1")
+
+    normalized_query = query.strip()
+    if not normalized_query:
+        return []
+
+    query_embedding = try_generate_embedding(normalized_query)
+    if query_embedding is None:
+        raise HTTPException(status_code=503, detail="Unable to generate query embedding")
+
+    documents = db.query(Document).join(Document.creator).all()
+    if not documents:
+        return []
+
+    updated = False
+    scored: list[SimilarDocumentOut] = []
+
+    for doc in documents:
+        embedding = doc.summary_embedding
+        if not embedding and doc.summary:
+            embedding = try_generate_embedding(doc.summary)
+            if embedding is not None:
+                doc.summary_embedding = embedding
+                updated = True
+
+        if not embedding:
+            continue
+
+        score = cosine_similarity(query_embedding, embedding)
+        if score >= threshold:
+            scored.append(
+                SimilarDocumentOut(
+                    **serialize_public_document(doc).model_dump(),
+                    similarity_score=score,
+                )
+            )
+
+    if updated:
+        db.commit()
+
+    scored.sort(key=lambda item: item.similarity_score, reverse=True)
+    return scored[: max(1, min(limit, 200))]
 
 @public_router.get("/{document_id}", response_model=PublicDocumentOut)
 def get_public_document(document_id: int, db: Session = Depends(get_db)):
@@ -153,6 +230,11 @@ def list_similar_documents(document_id: int, threshold: float = 0.6, limit: int 
     doc = db.query(Document).join(Document.creator).filter(Document.id == document_id).first()
     if not doc:
         raise HTTPException(status_code=404, detail="Document not found")
+
+    if not doc.summary_embedding:
+        if ensure_embedding(doc):
+            db.commit()
+            db.refresh(doc)
 
     if not doc.summary_embedding:
         raise HTTPException(status_code=400, detail="Selected document has no embedding")
@@ -175,3 +257,4 @@ def list_similar_documents(document_id: int, threshold: float = 0.6, limit: int 
 
     scored.sort(key=lambda item: item.similarity_score, reverse=True)
     return scored[: max(1, min(limit, 5))]
+

@@ -10,7 +10,9 @@ class EmbeddingError(Exception):
 
 
 def generate_summary_embedding(summary_text: str) -> list[float]:
-    if not settings.embeddings_api_key:
+    api_key = settings.embeddings_api_key or settings.github_token
+
+    if not api_key:
         raise EmbeddingError("Missing EMBEDDINGS_API_KEY / embeddings_api_key setting")
 
     endpoint = f"{settings.embeddings_base_url.rstrip('/')}/embeddings"
@@ -20,7 +22,7 @@ def generate_summary_embedding(summary_text: str) -> list[float]:
     }
 
     headers = {
-        "Authorization": f"Bearer {settings.embeddings_api_key}",
+        "Authorization": f"Bearer {api_key}",
         "Content-Type": "application/json",
     }
 

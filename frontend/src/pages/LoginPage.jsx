@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
 import { LockKeyhole, Mail } from 'lucide-react'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Input } from '../components/ui/input'
@@ -54,6 +54,10 @@ const LoginPage = () => {
             </div>
             {error && <p className="rounded-md bg-red-50 p-2 text-sm text-red-600 dark:bg-red-950/40 dark:text-red-200">{error}</p>}
             <Button type="submit" disabled={loading}>{loading ? 'Signing in...' : 'Login'}</Button>
+            <p className="text-sm text-muted-foreground">
+              New here?{' '}
+              <Link to="/register" className="font-medium text-indigo-600 hover:text-indigo-500 dark:text-indigo-300 dark:hover:text-indigo-200">Create an account</Link>
+            </p>
           </form>
         </CardContent>
       </Card>

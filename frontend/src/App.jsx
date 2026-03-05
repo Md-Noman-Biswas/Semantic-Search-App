@@ -7,6 +7,7 @@ import DocumentComparePage from './pages/DocumentComparePage'
 import DocumentDetailPage from './pages/DocumentDetailPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
+import RegisterPage from './pages/RegisterPage'
 import ProfilePage from './pages/ProfilePage'
 import SettingsPage from './pages/SettingsPage'
 import UserDashboard from './pages/UserDashboard'
@@ -27,6 +28,7 @@ const App = () => {
         <Route path="/documents/:id" element={<DocumentDetailPage />} />
         <Route path="/compare/:sourceId/:matchId" element={<DocumentComparePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
         <Route path="/dashboard" element={<ProtectedRoute><DashboardRouter /></ProtectedRoute>} />
         <Route path="/users" element={<ProtectedRoute role="admin"><UserManagementPage /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />

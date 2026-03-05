@@ -63,15 +63,23 @@ const DocumentDetailPage = () => {
 
           <div className="space-y-2">
             <label htmlFor="similarity-slider" className="block text-sm font-medium">Set similarity percentage</label>
-            <input
-              id="similarity-slider"
-              type="range"
-              min="1"
-              max="100"
-              value={threshold}
-              onChange={(event) => setThreshold(Number(event.target.value))}
-              className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-indigo-600"
-            />
+            <div className="relative pt-8">
+              <div
+                className="pointer-events-none absolute top-0 rounded-md bg-indigo-600 px-2 py-1 text-xs font-medium text-white shadow"
+                style={{ left: `calc(${threshold}% - 24px)` }}
+              >
+                {threshold}%
+              </div>
+              <input
+                id="similarity-slider"
+                type="range"
+                min="1"
+                max="100"
+                value={threshold}
+                onChange={(event) => setThreshold(Number(event.target.value))}
+                className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-indigo-600 dark:bg-slate-700"
+              />
+            </div>
           </div>
 
           <Button onClick={findSimilar} disabled={searching}>{searching ? 'Searching...' : 'Find Similar Documents'}</Button>
@@ -86,8 +94,8 @@ const DocumentDetailPage = () => {
           <CardContent>
             <div className="space-y-3">
               {similar.map((item) => (
-                <div key={item.id} className="rounded-lg border border-border p-3">
-                  <p className="font-semibold">{item.title}</p>
+                <div key={item.id} className="rounded-lg border border-border bg-white/40 p-3 dark:bg-slate-950/40">
+                  <p className="font-semibold text-slate-900 dark:text-slate-100">{item.title}</p>
                   <p className="text-xs text-muted-foreground">Similarity: {(item.similarity_score * 100).toFixed(2)}%</p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <Link to={`/documents/${item.id}`}><Button size="sm" variant="outline">Open Detail</Button></Link>
